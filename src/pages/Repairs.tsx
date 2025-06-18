@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Plus, Search, Filter, Eye, Edit, Trash2, FileText, Wrench, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import AddRepairModal from '../components/Modals/AddRepairModal';
 import { useRepairRequests, useSpareParts } from '../hooks/useSupabase';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Repairs: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -9,6 +10,7 @@ const Repairs: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const { repairs, loading, addRepair, updateRepairStatus, deleteRepair } = useRepairRequests();
   const { refetch: refetchSpareParts } = useSpareParts();
+  const { t, language } = useLanguage();
 
   const handleAddRepair = async (newRepair: any) => {
     try {
@@ -32,11 +34,10 @@ const Repairs: React.FC = () => {
       }));
 
       await addRepair(repairData, usedParts);
-      // تحديث قطع الغيار لإظهار الكميات الجديدة
       refetchSpareParts();
     } catch (error) {
       console.error('Error adding repair:', error);
-      alert('حدث خطأ في إضافة الإصلاح');
+      alert(language === 'ar' ? 'حدث خطأ في إضافة الإصلاح' : 'Erreur lors de l\'ajout de la réparation');
     }
   };
 
@@ -45,18 +46,22 @@ const Repairs: React.FC = () => {
       await updateRepairStatus(repairId, newStatus);
     } catch (error) {
       console.error('Error updating repair status:', error);
-      alert('حدث خطأ في تحديث حالة الإصلاح');
+      alert(language === 'ar' ? 'حدث خطأ في تحديث حالة الإصلاح' : 'Erreur lors de la mise à jour du statut');
     }
   };
 
   const handleDeleteRepair = async (repairId: string) => {
-    if (window.confirm('هل أنت متأكد من حذف هذا الإصلاح؟ سيتم إرجاع القطع المستخدمة إلى المخزون.')) {
+    const confirmMessage = language === 'ar' 
+      ? 'هل أنت متأكد من حذف هذا الإصلاح؟ سيتم إرجاع القطع المستخدمة إلى المخزون.'
+      : 'Êtes-vous sûr de vouloir supprimer cette réparation ? Les pièces utilisées seront retournées au stock.';
+    
+    if (window.confirm(confirmMessage)) {
       try {
         await deleteRepair(repairId);
-        refetchSpareParts(); // تحديث المخزون بعد الحذف
+        refetchSpareParts();
       } catch (error) {
         console.error('Error deleting repair:', error);
-        alert('حدث خطأ في حذف الإصلاح');
+        alert(language === 'ar' ? 'حدث خطأ في حذف الإصلاح' : 'Erreur lors de la suppression');
       }
     }
   };
@@ -75,10 +80,10 @@ const Repairs: React.FC = () => {
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      pending: { label: 'في الانتظار', class: 'bg-yellow-100 text-yellow-800', icon: Clock },
-      in_progress: { label: 'قيد التنفيذ', class: 'bg-blue-100 text-blue-800', icon: AlertCircle },
-      completed: { label: 'مكتمل', class: 'bg-green-100 text-green-800', icon: CheckCircle },
-      archived: { label: 'مؤرشف', class: 'bg-gray-100 text-gray-800', icon: FileText }
+      pending: { label: t('repairs.pending'), class: 'bg-yellow-100 text-yellow-800', icon: Clock },
+      in_progress: { label: t('repairs.inProgress'), class: 'bg-blue-100 text-blue-800', icon: AlertCircle },
+      completed: { label: t('repairs.completed'), class: 'bg-green-100 text-green-800', icon: CheckCircle },
+      archived: { label: t('repairs.archived'), class: 'bg-gray-100 text-gray-800', icon: FileText }
     };
     
     const config = statusConfig[status as keyof typeof statusConfig];
@@ -102,7 +107,7 @@ const Repairs: React.FC = () => {
           onClick={() => handleStatusChange(repair.id, 'in_progress')}
           className="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 transition-colors"
         >
-          بدء العمل
+          {t('repairs.startWork')}
         </button>
       );
     }
@@ -114,7 +119,7 @@ const Repairs: React.FC = () => {
           onClick={() => handleStatusChange(repair.id, 'completed')}
           className="text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 transition-colors"
         >
-          إكمال
+          {t('repairs.complete')}
         </button>
       );
     }
@@ -126,7 +131,7 @@ const Repairs: React.FC = () => {
           onClick={() => handleStatusChange(repair.id, 'archived')}
           className="text-xs bg-gray-600 text-white px-2 py-1 rounded hover:bg-gray-700 transition-colors"
         >
-          أرشفة
+          {t('repairs.archive')}
         </button>
       );
     }
@@ -146,14 +151,14 @@ const Repairs: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-gray-900">إدارة الإصلاحات</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t('repairs.title')}</h1>
         
         <button
           onClick={() => setShowAddModal(true)}
           className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
         >
           <Plus className="w-5 h-5" />
-          إصلاح جديد
+          {t('repairs.newRepair')}
         </button>
       </div>
 
@@ -163,7 +168,7 @@ const Repairs: React.FC = () => {
           <div className="flex items-center gap-3">
             <Clock className="w-8 h-8 text-yellow-600" />
             <div>
-              <p className="text-sm text-yellow-600 font-medium">في الانتظار</p>
+              <p className="text-sm text-yellow-600 font-medium">{t('repairs.pending')}</p>
               <p className="text-2xl font-bold text-yellow-800">
                 {repairs.filter(r => r.status === 'pending').length}
               </p>
@@ -175,7 +180,7 @@ const Repairs: React.FC = () => {
           <div className="flex items-center gap-3">
             <AlertCircle className="w-8 h-8 text-blue-600" />
             <div>
-              <p className="text-sm text-blue-600 font-medium">قيد التنفيذ</p>
+              <p className="text-sm text-blue-600 font-medium">{t('repairs.inProgress')}</p>
               <p className="text-2xl font-bold text-blue-800">
                 {repairs.filter(r => r.status === 'in_progress').length}
               </p>
@@ -187,7 +192,7 @@ const Repairs: React.FC = () => {
           <div className="flex items-center gap-3">
             <CheckCircle className="w-8 h-8 text-green-600" />
             <div>
-              <p className="text-sm text-green-600 font-medium">مكتمل</p>
+              <p className="text-sm text-green-600 font-medium">{t('repairs.completed')}</p>
               <p className="text-2xl font-bold text-green-800">
                 {repairs.filter(r => r.status === 'completed').length}
               </p>
@@ -199,7 +204,7 @@ const Repairs: React.FC = () => {
           <div className="flex items-center gap-3">
             <FileText className="w-8 h-8 text-gray-600" />
             <div>
-              <p className="text-sm text-gray-600 font-medium">مؤرشف</p>
+              <p className="text-sm text-gray-600 font-medium">{t('repairs.archived')}</p>
               <p className="text-2xl font-bold text-gray-800">
                 {repairs.filter(r => r.status === 'archived').length}
               </p>
@@ -212,13 +217,13 @@ const Repairs: React.FC = () => {
       <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1 relative">
-            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className={`absolute ${language === 'ar' ? 'right-3' : 'left-3'} top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5`} />
             <input
               type="text"
-              placeholder="البحث باسم العميل، الهاتف، أو الجهاز..."
+              placeholder={t('repairs.search')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className={`w-full ${language === 'ar' ? 'pr-10 pl-4' : 'pl-10 pr-4'} py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
             />
           </div>
           
@@ -229,11 +234,11 @@ const Repairs: React.FC = () => {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
-              <option value="all">جميع الحالات</option>
-              <option value="pending">في الانتظار</option>
-              <option value="in_progress">قيد التنفيذ</option>
-              <option value="completed">مكتمل</option>
-              <option value="archived">مؤرشف</option>
+              <option value="all">{t('repairs.allStatuses')}</option>
+              <option value="pending">{t('repairs.pending')}</option>
+              <option value="in_progress">{t('repairs.inProgress')}</option>
+              <option value="completed">{t('repairs.completed')}</option>
+              <option value="archived">{t('repairs.archived')}</option>
             </select>
           </div>
         </div>
@@ -246,15 +251,15 @@ const Repairs: React.FC = () => {
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-900">العميل</th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-900">الجهاز</th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-900">العطل</th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-900">القطع المستخدمة</th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-900">التكلفة</th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-900">الربح</th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-900">الحالة</th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-900">التاريخ</th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-900">الإجراءات</th>
+                  <th className={`px-6 py-4 ${language === 'ar' ? 'text-right' : 'text-left'} text-sm font-semibold text-gray-900`}>{t('repairs.customer')}</th>
+                  <th className={`px-6 py-4 ${language === 'ar' ? 'text-right' : 'text-left'} text-sm font-semibold text-gray-900`}>{t('repairs.device')}</th>
+                  <th className={`px-6 py-4 ${language === 'ar' ? 'text-right' : 'text-left'} text-sm font-semibold text-gray-900`}>{t('repairs.issue')}</th>
+                  <th className={`px-6 py-4 ${language === 'ar' ? 'text-right' : 'text-left'} text-sm font-semibold text-gray-900`}>{t('repairs.usedParts')}</th>
+                  <th className={`px-6 py-4 ${language === 'ar' ? 'text-right' : 'text-left'} text-sm font-semibold text-gray-900`}>{t('repairs.cost')}</th>
+                  <th className={`px-6 py-4 ${language === 'ar' ? 'text-right' : 'text-left'} text-sm font-semibold text-gray-900`}>{t('repairs.profit')}</th>
+                  <th className={`px-6 py-4 ${language === 'ar' ? 'text-right' : 'text-left'} text-sm font-semibold text-gray-900`}>{t('repairs.status')}</th>
+                  <th className={`px-6 py-4 ${language === 'ar' ? 'text-right' : 'text-left'} text-sm font-semibold text-gray-900`}>{t('repairs.date')}</th>
+                  <th className={`px-6 py-4 ${language === 'ar' ? 'text-right' : 'text-left'} text-sm font-semibold text-gray-900`}>{t('repairs.actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -283,25 +288,25 @@ const Repairs: React.FC = () => {
                         <div className="space-y-1">
                           {repair.repair_parts.map((part, index) => (
                             <div key={index} className="text-sm">
-                              <span className="text-gray-900">{part.spare_part?.name || 'قطعة محذوفة'}</span>
+                              <span className="text-gray-900">{part.spare_part?.name || (language === 'ar' ? 'قطعة محذوفة' : 'Pièce supprimée')}</span>
                               <span className="text-gray-600"> × {part.quantity_used}</span>
                             </div>
                           ))}
                         </div>
                       ) : (
-                        <span className="text-gray-500 text-sm">لا توجد قطع</span>
+                        <span className="text-gray-500 text-sm">{t('repairs.noParts')}</span>
                       )}
                     </td>
                     <td className="px-6 py-4">
                       <div>
-                        <p className="font-medium text-gray-900">{repair.total_cost} د.ت</p>
+                        <p className="font-medium text-gray-900">{repair.total_cost} {t('common.currency')}</p>
                         {repair.labor_cost > 0 && (
-                          <p className="text-sm text-gray-600">عمالة: {repair.labor_cost} د.ت</p>
+                          <p className="text-sm text-gray-600">{t('repairs.labor')}: {repair.labor_cost} {t('common.currency')}</p>
                         )}
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="font-medium text-green-600">{repair.profit} د.ت</p>
+                      <p className="font-medium text-green-600">{repair.profit} {t('common.currency')}</p>
                     </td>
                     <td className="px-6 py-4">
                       <div className="space-y-2">
@@ -314,11 +319,11 @@ const Repairs: React.FC = () => {
                     <td className="px-6 py-4">
                       <div>
                         <p className="text-sm text-gray-600">
-                          {new Date(repair.created_at).toLocaleDateString('ar-EG')}
+                          {new Date(repair.created_at).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'fr-FR')}
                         </p>
                         {repair.completed_at && (
                           <p className="text-xs text-green-600">
-                            اكتمل: {new Date(repair.completed_at).toLocaleDateString('ar-EG')}
+                            {t('repairs.completedOn')}: {new Date(repair.completed_at).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'fr-FR')}
                           </p>
                         )}
                       </div>
@@ -350,14 +355,14 @@ const Repairs: React.FC = () => {
         ) : (
           <div className="text-center py-12">
             <Wrench className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">لا توجد عمليات إصلاح</h3>
-            <p className="text-gray-600 mb-6">ابدأ بإضافة عملية إصلاح جديدة</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">{t('repairs.noRepairs')}</h3>
+            <p className="text-gray-600 mb-6">{t('repairs.addFirstRepair')}</p>
             <button
               onClick={() => setShowAddModal(true)}
               className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
             >
               <Plus className="w-5 h-5" />
-              إضافة إصلاح جديد
+              {t('repairs.newRepair')}
             </button>
           </div>
         )}

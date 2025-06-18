@@ -1,5 +1,6 @@
 import React from 'react';
 import { DivideIcon as LucideIcon } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface StatsCardProps {
   title: string;
@@ -41,6 +42,7 @@ const colorClasses = {
 
 const StatsCard: React.FC<StatsCardProps> = ({ title, value, icon: Icon, color, trend }) => {
   const colors = colorClasses[color];
+  const { t, language } = useLanguage();
 
   return (
     <div className={`${colors.bg} rounded-xl p-6 border border-gray-100`}>
@@ -53,7 +55,9 @@ const StatsCard: React.FC<StatsCardProps> = ({ title, value, icon: Icon, color, 
               <span className={`text-sm font-medium ${trend.isPositive ? 'text-green-600' : 'text-red-600'}`}>
                 {trend.isPositive ? '+' : ''}{trend.value}%
               </span>
-              <span className="text-gray-500 text-sm mr-1">عن الشهر الماضي</span>
+              <span className={`text-gray-500 text-sm ${language === 'ar' ? 'mr-1' : 'ml-1'}`}>
+                {t('dashboard.lastMonth')}
+              </span>
             </div>
           )}
         </div>

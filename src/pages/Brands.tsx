@@ -3,6 +3,7 @@ import { Plus, Search, Edit, Trash2, Smartphone, Tag } from 'lucide-react';
 import { useBrands, useModels } from '../hooks/useSupabase';
 import AddBrandModal from '../components/Modals/AddBrandModal';
 import AddModelModal from '../components/Modals/AddModelModal';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Brands: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -12,6 +13,7 @@ const Brands: React.FC = () => {
   
   const { brands, loading: brandsLoading, addBrand } = useBrands();
   const { models, loading: modelsLoading, addModel } = useModels();
+  const { t, language } = useLanguage();
 
   const filteredBrands = brands.filter(brand =>
     brand.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -28,7 +30,7 @@ const Brands: React.FC = () => {
       await addBrand(brandName);
     } catch (error) {
       console.error('Error adding brand:', error);
-      alert('حدث خطأ في إضافة الماركة');
+      alert(language === 'ar' ? 'حدث خطأ في إضافة الماركة' : 'Erreur lors de l\'ajout de la marque');
     }
   };
 
@@ -37,7 +39,7 @@ const Brands: React.FC = () => {
       await addModel(modelName, brandId);
     } catch (error) {
       console.error('Error adding model:', error);
-      alert('حدث خطأ في إضافة الموديل');
+      alert(language === 'ar' ? 'حدث خطأ في إضافة الموديل' : 'Erreur lors de l\'ajout du modèle');
     }
   };
 
@@ -57,7 +59,7 @@ const Brands: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-gray-900">إدارة الماركات والموديلات</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t('brands.title')}</h1>
         
         <div className="flex gap-2">
           <button
@@ -65,7 +67,7 @@ const Brands: React.FC = () => {
             className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Plus className="w-5 h-5" />
-            إضافة ماركة
+            {t('brands.addBrand')}
           </button>
           
           {selectedBrandId && (
@@ -74,7 +76,7 @@ const Brands: React.FC = () => {
               className="inline-flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
             >
               <Plus className="w-5 h-5" />
-              إضافة موديل
+              {t('brands.addModel')}
             </button>
           )}
         </div>
@@ -83,13 +85,13 @@ const Brands: React.FC = () => {
       {/* Search */}
       <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
         <div className="relative">
-          <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <Search className={`absolute ${language === 'ar' ? 'right-3' : 'left-3'} top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5`} />
           <input
             type="text"
-            placeholder="البحث عن الماركات..."
+            placeholder={t('brands.search')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className={`w-full ${language === 'ar' ? 'pr-10 pl-4' : 'pl-10 pr-4'} py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
           />
         </div>
       </div>
@@ -100,7 +102,7 @@ const Brands: React.FC = () => {
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-center gap-3">
               <Tag className="w-6 h-6 text-blue-600" />
-              <h2 className="text-xl font-semibold text-gray-900">الماركات</h2>
+              <h2 className="text-xl font-semibold text-gray-900">{t('brands.brands')}</h2>
               <span className="bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded-full">
                 {filteredBrands.length}
               </span>
@@ -124,7 +126,7 @@ const Brands: React.FC = () => {
                       <div>
                         <h3 className="font-semibold text-gray-900">{brand.name}</h3>
                         <p className="text-sm text-gray-600">
-                          {getModelCount(brand.id)} موديل
+                          {t('brands.modelCount').replace('{count}', getModelCount(brand.id).toString())}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
@@ -142,14 +144,14 @@ const Brands: React.FC = () => {
             ) : (
               <div className="text-center py-8">
                 <Tag className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">لا توجد ماركات</h3>
-                <p className="text-gray-600 mb-6">ابدأ بإضافة ماركات الأجهزة</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">{t('brands.noBrands')}</h3>
+                <p className="text-gray-600 mb-6">{t('brands.addFirstBrand')}</p>
                 <button
                   onClick={() => setShowAddBrandModal(true)}
                   className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   <Plus className="w-5 h-5" />
-                  إضافة ماركة جديدة
+                  {t('brands.addNewBrand')}
                 </button>
               </div>
             )}
@@ -162,7 +164,7 @@ const Brands: React.FC = () => {
             <div className="flex items-center gap-3">
               <Smartphone className="w-6 h-6 text-green-600" />
               <h2 className="text-xl font-semibold text-gray-900">
-                {selectedBrand ? `موديلات ${selectedBrand.name}` : 'جميع الموديلات'}
+                {selectedBrand ? t('brands.modelsFor').replace('{brand}', selectedBrand.name) : t('brands.allModels')}
               </h2>
               <span className="bg-green-100 text-green-800 text-sm font-medium px-2.5 py-0.5 rounded-full">
                 {filteredModels.length}
@@ -200,23 +202,23 @@ const Brands: React.FC = () => {
                 <div className="text-center py-8">
                   <Smartphone className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    لا توجد موديلات لـ {selectedBrand?.name}
+                    {t('brands.noModels').replace('{brand}', selectedBrand?.name || '')}
                   </h3>
-                  <p className="text-gray-600 mb-6">أضف موديلات جديدة لهذه الماركة</p>
+                  <p className="text-gray-600 mb-6">{t('brands.addModelsForBrand')}</p>
                   <button
                     onClick={() => setShowAddModelModal(true)}
                     className="inline-flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
                   >
                     <Plus className="w-5 h-5" />
-                    إضافة موديل جديد
+                    {t('brands.addNewModel')}
                   </button>
                 </div>
               )
             ) : (
               <div className="text-center py-8">
                 <Smartphone className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">اختر ماركة</h3>
-                <p className="text-gray-600">اختر ماركة من القائمة لعرض موديلاتها</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">{t('brands.selectBrand')}</h3>
+                <p className="text-gray-600">{t('brands.selectBrandToView')}</p>
               </div>
             )}
           </div>

@@ -3,10 +3,12 @@ import { DollarSign, Package, Wrench, TrendingUp } from 'lucide-react';
 import StatsCard from '../components/Dashboard/StatsCard';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useRepairRequests } from '../hooks/useSupabase';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Dashboard: React.FC = () => {
   const [dateFilter, setDateFilter] = useState('month');
   const { repairs, loading } = useRepairRequests();
+  const { t, language } = useLanguage();
   const [stats, setStats] = useState({
     total_revenue: 0,
     total_cost: 0,
@@ -75,7 +77,10 @@ const Dashboard: React.FC = () => {
   };
 
   const calculateWeeklyProfits = (repairs: any[]) => {
-    const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    const days = language === 'ar' 
+      ? ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت']
+      : ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+    
     const weeklyData = days.map(day => ({ name: day, profit: 0 }));
 
     const now = new Date();
@@ -96,7 +101,7 @@ const Dashboard: React.FC = () => {
     const modelCounts: { [key: string]: number } = {};
     
     repairs.forEach((repair) => {
-      const modelName = repair.model?.name || 'غير محدد';
+      const modelName = repair.model?.name || (language === 'ar' ? 'غير محدد' : 'Non spécifié');
       modelCounts[modelName] = (modelCounts[modelName] || 0) + 1;
     });
 
@@ -116,7 +121,7 @@ const Dashboard: React.FC = () => {
     const issueCounts: { [key: string]: number } = {};
     
     repairs.forEach((repair) => {
-      const issue = repair.issue_type || 'غير محدد';
+      const issue = repair.issue_type || (language === 'ar' ? 'غير محدد' : 'Non spécifié');
       issueCounts[issue] = (issueCounts[issue] || 0) + 1;
     });
 
@@ -138,7 +143,7 @@ const Dashboard: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-gray-900">لوحة التحكم</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t('dashboard.title')}</h1>
         
         <div className="flex gap-2">
           <select
@@ -146,9 +151,9 @@ const Dashboard: React.FC = () => {
             onChange={(e) => setDateFilter(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
-            <option value="today">اليوم</option>
-            <option value="week">هذا الأسبوع</option>
-            <option value="month">هذا الشهر</option>
+            <option value="today">{t('dashboard.today')}</option>
+            <option value="week">{t('dashboard.week')}</option>
+            <option value="month">{t('dashboard.month')}</option>
           </select>
         </div>
       </div>
@@ -156,28 +161,28 @@ const Dashboard: React.FC = () => {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatsCard
-          title="إجمالي الإيرادات"
-          value={`${stats.total_revenue.toLocaleString()} د.ت`}
+          title={t('dashboard.totalRevenue')}
+          value={`${stats.total_revenue.toLocaleString()} ${t('common.currency')}`}
           icon={DollarSign}
           color="blue"
         />
         
         <StatsCard
-          title="تكلفة القطع"
-          value={`${stats.total_cost.toLocaleString()} د.ت`}
+          title={t('dashboard.partsCost')}
+          value={`${stats.total_cost.toLocaleString()} ${t('common.currency')}`}
           icon={Package}
           color="red"
         />
         
         <StatsCard
-          title="صافي الأرباح"
-          value={`${stats.net_profit.toLocaleString()} د.ت`}
+          title={t('dashboard.netProfit')}
+          value={`${stats.net_profit.toLocaleString()} ${t('common.currency')}`}
           icon={TrendingUp}
           color="green"
         />
         
         <StatsCard
-          title="عدد الإصلاحات"
+          title={t('dashboard.repairsCount')}
           value={stats.total_repairs}
           icon={Wrench}
           color="purple"
@@ -188,7 +193,7 @@ const Dashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Profit Chart */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">تطور الأرباح الأسبوعية</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('dashboard.weeklyProfit')}</h3>
           <div className="h-80">
             {profitData.some(d => d.profit > 0) ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -196,7 +201,7 @@ const Dashboard: React.FC = () => {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
                   <YAxis />
-                  <Tooltip formatter={(value) => [`${value} د.ت`, 'الربح']} />
+                  <Tooltip formatter={(value) => [`${value} ${t('common.currency')}`, language === 'ar' ? 'الربح' : 'Bénéfice']} />
                   <Bar dataKey="profit" fill="#3B82F6" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -204,8 +209,8 @@ const Dashboard: React.FC = () => {
               <div className="flex items-center justify-center h-full text-gray-500">
                 <div className="text-center">
                   <Wrench className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                  <p>لا توجد بيانات أرباح للعرض</p>
-                  <p className="text-sm">قم بإضافة عمليات إصلاح مكتملة لرؤية الإحصائيات</p>
+                  <p>{t('dashboard.noData')}</p>
+                  <p className="text-sm">{t('dashboard.addRepairs')}</p>
                 </div>
               </div>
             )}
@@ -214,7 +219,7 @@ const Dashboard: React.FC = () => {
 
         {/* Popular Models */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">الموديلات الأكثر إصلاحاً</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('dashboard.popularModels')}</h3>
           <div className="h-80">
             {popularModels.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -238,8 +243,8 @@ const Dashboard: React.FC = () => {
               <div className="flex items-center justify-center h-full text-gray-500">
                 <div className="text-center">
                   <Package className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                  <p>لا توجد بيانات موديلات للعرض</p>
-                  <p className="text-sm">قم بإضافة عمليات إصلاح لرؤية الموديلات الأكثر شيوعاً</p>
+                  <p>{t('dashboard.noData')}</p>
+                  <p className="text-sm">{t('dashboard.addRepairs')}</p>
                 </div>
               </div>
             )}
@@ -249,7 +254,7 @@ const Dashboard: React.FC = () => {
 
       {/* Common Issues */}
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">الأعطال الأكثر شيوعاً</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('dashboard.commonIssues')}</h3>
         {commonIssues.length > 0 ? (
           <div className="space-y-4">
             {commonIssues.map((issue, index) => (
@@ -270,8 +275,8 @@ const Dashboard: React.FC = () => {
         ) : (
           <div className="text-center py-8 text-gray-500">
             <TrendingUp className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-            <p>لا توجد بيانات أعطال للعرض</p>
-            <p className="text-sm">قم بإضافة عمليات إصلاح لرؤية الأعطال الأكثر شيوعاً</p>
+            <p>{t('dashboard.noData')}</p>
+            <p className="text-sm">{t('dashboard.addRepairs')}</p>
           </div>
         )}
       </div>
