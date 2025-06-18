@@ -130,6 +130,36 @@ const translations = {
     'settings.changePasswordDescription': 'قم بتحديث كلمة المرور الخاصة بك بانتظام',
     'settings.changePasswordButton': 'تغيير كلمة المرور',
     
+    // Reports
+    'reports.title': 'التقارير',
+    'reports.export': 'تصدير التقرير',
+    'reports.period': 'الفترة',
+    'reports.quarter': 'هذا الربع',
+    'reports.year': 'هذا العام',
+    'reports.financial': 'التقرير المالي',
+    'reports.financialDesc': 'تقرير شامل عن الإيرادات والأرباح',
+    'reports.inventory': 'تقرير المخزون',
+    'reports.inventoryDesc': 'حالة المخزون والقطع المطلوبة',
+    'reports.performance': 'تقرير الأداء',
+    'reports.performanceDesc': 'إحصائيات الأداء والإنتاجية',
+    'reports.comingSoon': 'قريباً',
+    'reports.comingSoonDesc': 'ستتوفر التقارير التفصيلية قريباً',
+    
+    // Archive
+    'archive.title': 'الأرشيف',
+    'archive.exportAll': 'تصدير الكل',
+    'archive.totalItems': 'إجمالي العناصر',
+    'archive.repairs': 'الإصلاحات',
+    'archive.thisMonth': 'هذا الشهر',
+    'archive.search': 'البحث في الأرشيف...',
+    'archive.allPeriods': 'جميع الفترات',
+    'archive.item': 'العنصر',
+    'archive.customer': 'العميل',
+    'archive.date': 'التاريخ',
+    'archive.amount': 'المبلغ',
+    'archive.noItems': 'لا توجد عناصر مؤرشفة',
+    'archive.noItemsDesc': 'ستظهر العناصر المؤرشفة هنا',
+    
     // Common
     'common.add': 'إضافة',
     'common.edit': 'تعديل',
@@ -296,6 +326,36 @@ const translations = {
     'settings.changePassword': 'Changer le mot de passe',
     'settings.changePasswordDescription': 'Mettez à jour votre mot de passe régulièrement',
     'settings.changePasswordButton': 'Changer le mot de passe',
+    
+    // Reports
+    'reports.title': 'Rapports',
+    'reports.export': 'Exporter le rapport',
+    'reports.period': 'Période',
+    'reports.quarter': 'Ce trimestre',
+    'reports.year': 'Cette année',
+    'reports.financial': 'Rapport financier',
+    'reports.financialDesc': 'Rapport complet sur les revenus et bénéfices',
+    'reports.inventory': 'Rapport d\'inventaire',
+    'reports.inventoryDesc': 'État du stock et pièces requises',
+    'reports.performance': 'Rapport de performance',
+    'reports.performanceDesc': 'Statistiques de performance et productivité',
+    'reports.comingSoon': 'Bientôt disponible',
+    'reports.comingSoonDesc': 'Les rapports détaillés seront bientôt disponibles',
+    
+    // Archive
+    'archive.title': 'Archive',
+    'archive.exportAll': 'Exporter tout',
+    'archive.totalItems': 'Total des éléments',
+    'archive.repairs': 'Réparations',
+    'archive.thisMonth': 'Ce mois',
+    'archive.search': 'Rechercher dans l\'archive...',
+    'archive.allPeriods': 'Toutes les périodes',
+    'archive.item': 'Élément',
+    'archive.customer': 'Client',
+    'archive.date': 'Date',
+    'archive.amount': 'Montant',
+    'archive.noItems': 'Aucun élément archivé',
+    'archive.noItemsDesc': 'Les éléments archivés apparaîtront ici',
     
     // Common
     'common.add': 'Ajouter',
